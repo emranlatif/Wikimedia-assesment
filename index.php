@@ -84,25 +84,23 @@ function getArticlesList() {
     return $articlesList;
 }
 
+/**
+ * Calculate and return the total word count of all articles
+ *
+ * @return string Word count message
+ */
 function wfGetWc() {
-	global $wgBaseArticlePath;
-	// Set the base path where articles are stored
-	$wgBaseArticlePath = 'articles/';
-	 // Initialize word count
-	$wc = 0;
-	// Iterate through files in the directory
-	$dir = new DirectoryIterator( $wgBaseArticlePath );
-	foreach ( $dir as $fileinfo ) {
-		// Skip . and .. entries
-		if ( $fileinfo->isDot() ) {
-			continue;
-		}
-		// Read content of each article file
-		$c = file_get_contents( $wgBaseArticlePath . $fileinfo->getFilename() );
-		 // Split content into words and update word count
-		$ch = explode( " ", $c );
-		$wc += count( $ch );
-	}
+    $baseArticlePath = 'articles/';
+    $wordCount = 0;
+    $dir = new DirectoryIterator($baseArticlePath);
+    foreach ($dir as $fileinfo) {
+        if ($fileinfo->isFile()) {
+            $content = file_get_contents($baseArticlePath . $fileinfo->getFilename());
+            $words = str_word_count($content);
+            $wordCount += $words;
+        }
+    }
+    return "$wordCount words written";
 }
 // Initialize variables for title and body
 $title = '';
