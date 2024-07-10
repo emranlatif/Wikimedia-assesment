@@ -90,17 +90,20 @@ function getArticlesList() {
  * @return string Word count message
  */
 function wfGetWc() {
-    $baseArticlePath = 'articles/';
-    $wordCount = 0;
-    $dir = new DirectoryIterator($baseArticlePath);
+    $wgBaseArticlePath = 'articles/';
+    $wc = 0;
+    $dir = new DirectoryIterator($wgBaseArticlePath);
     foreach ($dir as $fileinfo) {
-        if ($fileinfo->isFile()) {
-            $content = file_get_contents($baseArticlePath . $fileinfo->getFilename());
-            $words = str_word_count($content);
-            $wordCount += $words;
+        if ($fileinfo->isDot()) {
+            continue;
         }
+        $handle = fopen($wgBaseArticlePath . $fileinfo->getFilename(), "r");
+        while (($line = fgets($handle)) !== false) {
+            $wc += str_word_count($line);
+        }
+        fclose($handle);
     }
-    return "$wordCount words written";
+    return "$wc words written";
 }
 // Initialize variables for title and body
 $title = '';
