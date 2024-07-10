@@ -12,10 +12,12 @@
 // comments / psuedo-code welcome.
 // TODO F (optional): Implement a unit test that operates on part of App.php
 
+// import App class from App namespace
 use App\App;
-
+// include the composer autoload for manage dependencies
 require_once __DIR__ . '/vendor/autoload.php';
 
+// Initialize application
 $app = new App();
 
 echo "<head>
@@ -23,22 +25,32 @@ echo "<head>
 <link rel='stylesheet' href='styles.css'>
 <script src='main.js'></script>
 </head>";
-
+// Initialize variables for title and body
 $title = '';
 $body = '';
+// Check if 'title' is set in query parameters
 if ( isset( $_GET['title'] ) ) {
+	// Sanitize the title parameter to prevent XSS attacks
 	$title = htmlentities( $_GET['title'] );
+	// Get article body based on the sanitized title
 	$body = $app->fetch( $_GET );
+	// Alternatively, fetch the article content from a file
 	$body = file_get_contents( sprintf( 'articles/%s', $title ) );
 }
-
+// Calling the efGetWc function
 $wordCount = wfGetWc();
+// Output the HTML head with stylesheets and JavaScript
 echo "<body>";
+
+// Output the header section with a link and word count
 echo "<div id=header class=header>
 <a href='/'>Article editor</a><div>$wordCount</div>
 </div>";
+// Output the main content wrapper
 echo "<div class='page'>";
 echo "<div class='main'>";
+
+// Output the form header and instructions
 echo "<h2>Create/Edit Article</h2>
 <p>Create a new article by filling out the fields below. Edit an article by typing the beginning of the title in the title field, selecting the title from the auto-complete list, and changing the text in the textfield.</p>
 <form action='index.php' method='post'>
@@ -49,6 +61,7 @@ echo "<h2>Create/Edit Article</h2>
 <a class='submit-button' href='#' />Submit</a>
 <br />
 <h2>Preview</h2>
+
 $title\n\n
 $body
 <h2>Articles</h2>
@@ -57,23 +70,32 @@ $body
 </ul>
 </form>";
 
+// Check if the form submitted
 if ( $_POST ) {
 	$app->save( sprintf( "articles/%s", $_POST['title'] ), $_POST['body'] );
 }
+// Close the main content and page wrappers
 echo "</div>";
 echo "</div>";
 echo "</body";
 
+
 function wfGetWc() {
 	global $wgBaseArticlePath;
+	// Set the base path where articles are stored
 	$wgBaseArticlePath = 'articles/';
+	 // Initialize word count
 	$wc = 0;
+	// Iterate through files in the directory
 	$dir = new DirectoryIterator( $wgBaseArticlePath );
 	foreach ( $dir as $fileinfo ) {
+		// Skip . and .. entries
 		if ( $fileinfo->isDot() ) {
 			continue;
 		}
+		// Read content of each article file
 		$c = file_get_contents( $wgBaseArticlePath . $fileinfo->getFilename() );
+		 // Split content into words and update word count
 		$ch = explode( " ", $c );
 		$wc += count( $ch );
 	}
