@@ -1,6 +1,5 @@
 <?php
-
-// TODO A: Improve the readability of this file through refactoring and documentation.
+	// TODO A: Improve the readability of this file through refactoring and documentation.
 // TODO B: Review the HTML structure and make sure that it is valid and contains
 // required elements. Edit and re-organize the HTML as needed.
 // TODO C: Review the index.php entrypoint for security and performance concerns
@@ -12,73 +11,78 @@
 // comments / psuedo-code welcome.
 // TODO F (optional): Implement a unit test that operates on part of App.php
 
-// import App class from App namespace
+// Import App class from App namespace
 use App\App;
-// include the composer autoload for manage dependencies
+// Include the Composer autoload to manage dependencies
 require_once __DIR__ . '/vendor/autoload.php';
 
-// Initialize application
+// Initialize the application
 $app = new App();
 
-echo "<!DOCTYPE html>
-<html lang='en'>
-<head>
-    <meta charset='UTF-8'>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-    <title>Article Editor</title>
-    <link rel='stylesheet' href='http://design.wikimedia.org/style-guide/css/build/wmui-style-guide.min.css'>
-    <link rel='stylesheet' href='styles.css'>
-    <script src='main.js' defer></script>
-</head>";
-// Initialize variables for title and body
-$title = '';
-$body = '';
-// Check if 'title' is set in query parameters
-if ( isset( $_GET['title'] ) ) {
-	// Sanitize the title parameter to prevent XSS attacks
-	$title = htmlentities( $_GET['title'] );
-	// Get article body based on the sanitized title
-	$body = $app->fetch( $_GET );
-	// Alternatively, fetch the article content from a file
-	$body = file_get_contents( sprintf( 'articles/%s', $title ) );
+/**
+ * Sanitize input data to prevent XSS attacks
+ *
+ * @param string $data Input data
+ * @return string Sanitized data
+ */
+function sanitize($data) {
+    return htmlspecialchars($data, ENT_QUOTES, 'UTF-8');
 }
-// Calling the efGetWc function
-$wordCount = wfGetWc();
-// Output the HTML head with stylesheets and JavaScript
-echo "<body>";
-echo "<div id='header' class='header'>
-    <a href='/'>Article Editor</a><div>$wordCount</div>
-</div>";
-echo "<div class='page'>";
-echo "<div class='main'>";
-echo "<h2>Create/Edit Article</h2>
-<p>Create a new article by filling out the fields below. Edit an article by typing the beginning of the title in the title field, selecting the title from the auto-complete list, and changing the text in the text field.</p>
-<form action='index.php' method='post'>
-    <input name='title' type='text' placeholder='Article title...' value='$title'>
-    <br />
-    <textarea name='body' placeholder='Article body...'>$body</textarea>
-    <br />
-    <button type='submit' class='submit-button'>Submit</button>
-    <br />
-    <h2>Preview</h2>
-    <div>$title</div>
-    <div>$body</div>
-    <h2>Articles</h2>
-    <ul>
-        <li><a href='index.php?title=Foo'>Foo</a></li>
-    </ul>
-</form>";
 
-// Check if the form submitted
-if ( $_POST ) {
-	$app->save( sprintf( "articles/%s", $_POST['title'] ), $_POST['body'] );
+/**
+ * Generate the header HTML with word count
+ *
+ * @param int $wordCount Word count
+ * @return string HTML for the header
+ */
+function getHeaderHTML($wordCount) {
+    return "<div id='header' class='header'>
+        <a href='/'>Article Editor</a><div>$wordCount</div>
+    </div>";
 }
-// Close the main content and page wrappers
-echo "</div>";
-echo "</div>";
-echo "</body>";
-echo "</html>";
 
+/**
+ * Generate the form HTML for creating/editing an article
+ *
+ * @param string $title Article title
+ * @param string $body Article body
+ * @return string HTML for the form
+ */
+function getFormHTML($title, $body) {
+    return "<h2>Create/Edit Article</h2>
+    <p>Create a new article by filling out the fields below. Edit an article by typing the beginning of the title in the title field, selecting the title from the auto-complete list, and changing the text in the text field.</p>
+    <form action='index.php' method='post'>
+        <input name='title' type='text' placeholder='Article title...' value='" . sanitize($title) . "'>
+        <br />
+        <textarea name='body' placeholder='Article body...'>" . sanitize($body) . "</textarea>
+        <br />
+        <button type='submit' class='submit-button'>Submit</button>
+        <br />
+        <h2>Preview</h2>
+        <div>" . sanitize($title) . "</div>
+        <div>" . sanitize($body) . "</div>
+        <h2>Articles</h2>
+        <ul>" . getArticlesList() . "</ul>
+    </form>";
+}
+
+/**
+ * Generate a list of available articles dynamically
+ *
+ * @return string HTML list of articles
+ */
+function getArticlesList() {
+    $articlesList = '';
+    $directory = new DirectoryIterator('articles/');
+    foreach ($directory as $fileinfo) {
+        if ($fileinfo->isFile()) {
+            $filename = $fileinfo->getFilename();
+            $articleTitle = pathinfo($filename, PATHINFO_FILENAME);
+            $articlesList .= "<li><a href='index.php?title=" . urlencode($articleTitle) . "'>" . sanitize($articleTitle) . "</a></li>";
+        }
+    }
+    return $articlesList;
+}
 
 function wfGetWc() {
 	global $wgBaseArticlePath;
@@ -99,5 +103,51 @@ function wfGetWc() {
 		$ch = explode( " ", $c );
 		$wc += count( $ch );
 	}
-	return "$wc words written";
 }
+// Initialize variables for title and body
+$title = '';
+$body = '';
+
+// Check if 'title' is set in query parameters and sanitize the input
+if (isset($_GET['title'])) {
+    $title = sanitize($_GET['title']);
+    // Fetch the article body from the application or file
+    if (file_exists(sprintf('articles/%s', $title))) {
+        $body = file_get_contents(sprintf('articles/%s', $title));
+    } else {
+        $body = $app->fetch($_GET); // Assuming fetch is a secure method
+    }
+}
+
+// Process the form submission
+if ($_POST) {
+    $title = sanitize($_POST['title']);
+    $body = sanitize($_POST['body']);
+    $app->save(sprintf("articles/%s", $title), $body);
+}
+
+// Calculate the total word count
+$wordCount = wfGetWc();
+
+// Output the HTML structure
+echo "<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Article Editor</title>
+    <link rel='stylesheet' href='http://design.wikimedia.org/style-guide/css/build/wmui-style-guide.min.css'>
+    <link rel='stylesheet' href='styles.css'>
+    <script src='main.js' defer></script>
+</head>
+<body>";
+echo getHeaderHTML($wordCount);
+echo "<div class='page'>";
+echo "<div class='main'>";
+echo getFormHTML($title, $body);
+echo "</div>";
+echo "</div>";
+echo "</body>
+</html>";
+
+?>
