@@ -20,6 +20,11 @@ header('Content-Type: application/json');
 // Route and handle requests
 handleRequest($app);
 
+/**
+ * Route and handle API requests.
+ *
+ * @param App $app The application instance.
+ */
 function handleRequest(App $app) {
     if (isListRequest()) {
         handleListRequest($app);
@@ -30,27 +35,62 @@ function handleRequest(App $app) {
     }
 }
 
+/**
+ * Check if the request is for the list of articles.
+ *
+ * @return bool True if the request is for the list of articles, false otherwise.
+ */
 function isListRequest(): bool {
     return !isset($_GET['title']) && !isset($_GET['prefixsearch']);
 }
 
+/**
+ * Check if the request is a prefix search.
+ *
+ * @return bool True if the request is a prefix search, false otherwise.
+ */
 function isPrefixSearchRequest(): bool {
     return isset($_GET['prefixsearch']);
 }
 
+/**
+ * Handle a request for the list of articles.
+ *
+ * @param App $app The application instance.
+ */
 function handleListRequest(App $app) {
     echo json_encode(['content' => $app->getListOfArticles()]);
 }
 
+/**
+ * Handle a prefix search request.
+ *
+ * @param App $app The application instance.
+ */
 function handlePrefixSearchRequest(App $app) {
+    // Suggestion: Cache the list of articles or implement search algorithm or indexing method.
     $filteredArticles = filterArticlesByPrefix($app->getListOfArticles(), $_GET['prefixsearch']);
     echo json_encode(['content' => $filteredArticles]);
 }
 
+/**
+ * Handle a request for a specific article.
+ *
+ * @param App $app The application instance.
+ */
 function handleArticleRequest(App $app) {
+    //Performance Concern- Fetching an article might involve reading from the file system or database for each request.
+    // Suggestion: Implement caching for articles to reduce file system/database access.
     echo json_encode(['content' => $app->fetch($_GET)]);
 }
 
+/**
+ * Filter a list of articles by a given prefix.
+ *
+ * @param array $articles The list of articles to filter.
+ * @param string $prefix The prefix to filter by.
+ * @return array The filtered list of articles.
+ */
 function filterArticlesByPrefix(array $articles, string $prefix): array {
     $filteredArticles = [];
     foreach ($articles as $article) {
@@ -58,5 +98,7 @@ function filterArticlesByPrefix(array $articles, string $prefix): array {
             $filteredArticles[] = $article;
         }
     }
+    // Performance Concern - Linear search has O(n) complexity. For large datasets, consider using a more efficient search method.
+    // Suggestion: Implement a trie (prefix tree) or another data structure optimized for prefix searches.
     return $filteredArticles;
 }
