@@ -123,7 +123,20 @@ function displaySuggestions(suggestions, inputElement) {
 		listItem.style.paddingBottom = '5px';
 		listItem.style.paddingTop = '5px';
 		listItem.style.borderBottom = '1px solid';
-		listItem.addEventListener('click', () => handleSuggestionClick(suggestion, inputElement));
+		 // Add hover effect using JavaScript
+		 listItem.addEventListener('mouseover', () => {
+            listItem.style.backgroundColor = '#d6e0f5'; // Change to the desired hover color
+        });
+        listItem.addEventListener('mouseout', () => {
+            listItem.style.backgroundColor = ''; // Reset to original background color
+        });
+
+        // Add mouse click event listener
+        listItem.addEventListener('mousedown', (event) => {
+            if (event.button === 0) { // Left mouse button
+                handleSuggestionClick(suggestion, inputElement);
+            }
+        });
 		suggestionsList.appendChild(listItem);
 	});
 	// Append suggestionsList after the input element

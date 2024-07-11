@@ -21,10 +21,4 @@ spec, should be made that way here.
 	position: relative;
 	width: 100%;
 }
-.suggestions-list {
-	position : 'absolute';
-	top : "20px";
-	z-index: 10;
-	width : '100%';
-	background-color : '#4f77c9';
-}
+
