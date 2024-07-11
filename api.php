@@ -81,8 +81,11 @@ function handlePrefixSearchRequest(App $app) {
 function handleArticleRequest(App $app) {
     //Performance Concern- Fetching an article might involve reading from the file system or database for each request.
     // Suggestion: Implement caching for articles to reduce file system/database access.
+	// TODO D: Security Concern - Potential XSS (Cross-Site Scripting) vulnerability if $_GET parameters are not properly sanitized.
+    // Suggestion: Ensure all input parameters are sanitized before use.
     echo json_encode(['content' => $app->fetch($_GET)]);
 }
+
 
 /**
  * Filter a list of articles by a given prefix.
@@ -102,3 +105,54 @@ function filterArticlesByPrefix(array $articles, string $prefix): array {
     // Suggestion: Implement a trie (prefix tree) or another data structure optimized for prefix searches.
     return $filteredArticles;
 }
+
+/**
+ * TODO D: Security Concern - Input Sanitization
+ * Sanitize input to prevent XSS attacks.
+ *
+ * @param string $input The input to sanitize.
+ * @return string The sanitized input.
+ */
+function sanitizeInput(string $input): string {
+    return htmlspecialchars($input, ENT_QUOTES, 'UTF-8');
+}
+
+// Sanitize all input parameters
+$_GET = array_map('sanitizeInput', $_GET);
+
+/**
+ * TODO D: Security Concern - Secure Database Interaction
+ * If the App::fetch method interacts with a database, ensure it's using prepared statements to prevent SQL injection.
+ * Example:
+ *
+ * // Using PDO for database interaction
+ * $stmt = $pdo->prepare("SELECT * FROM articles WHERE title = :title");
+ * $stmt->execute(['title' => $_GET['title']]);
+ * $article = $stmt->fetch();
+ */
+
+/**
+ * TODO D: Security Concern - Error Handling
+ * Implement proper error handling to prevent information disclosure.
+ * Example:
+ *
+ * try {
+ *     // Code that may throw an exception
+ * } catch (Exception $e) {
+ *     error_log($e->getMessage()); // Log detailed error message
+ *     echo json_encode(['error' => 'An unexpected error occurred.']); // Display generic error message
+ * }
+ */
+
+/**
+ * TODO D: Security Concern - Insecure Configuration
+ * Validate and sanitize file paths before including them.
+ * Example:
+ *
+ * $filePath = realpath(__DIR__ . '/vendor/autoload.php');
+ * if ($filePath && strpos($filePath, __DIR__) === 0) {
+ *     require_once $filePath;
+ * } else {
+ *     throw new Exception('Invalid file path');
+ * }
+ */

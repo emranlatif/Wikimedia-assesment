@@ -100,6 +100,7 @@ function wfGetWc() {
     }
     return "$wc words written";
 }
+
 // Initialize variables for title and body
 $title = '';
 $body = '';
