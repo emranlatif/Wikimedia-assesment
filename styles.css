@@ -22,3 +22,104 @@ spec, should be made that way here.
 	width: 100%;
 }
 
+
+/* Global Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Form Styles */
+.form-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.styled-form {
+    max-width: 600px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    margin: 0 auto; /* Center the form horizontally */
+}
+
+.form-control {
+    width: calc(100% - 20px); /* Adjust width to fit within parent container */
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+}
+
+.text_class {
+    width: calc(100% - 20px); /* Adjust width to fit within parent container */
+    resize: vertical; /* Allow vertical resizing of textarea */
+}
+
+.submit-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.submit-button:hover {
+    background-color: #0056b3;
+}
+
+/* Preview and Articles Sections */
+.preview-section, .articles-section {
+    text-align: center;
+    margin: 0 auto; /* Center the sections horizontally */
+    max-width: 600px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f0f0f0;
+    margin-bottom: 20px;
+}
+
+.preview-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.preview-body {
+    margin-bottom: 10px;
+}
+
+.articles-list {
+    list-style-type: none;
+    padding: 0;
+    text-align: left; /* Align list items to the left */
+}
+
+.articles-list li {
+    margin-bottom: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .styled-form, .preview-section, .articles-section {
+        max-width: 90%; /* Adjust max-width for smaller screens */
+    }
+}
+
+
+
+

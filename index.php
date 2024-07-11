@@ -46,21 +46,32 @@ function getHeaderHTML($wordCount) {
  * @return string HTML for the form
  */
 function getFormHTML($title, $body) {
-    return "<h2>Create/Edit Article</h2>
-    <p>Create a new article by filling out the fields below. Edit an article by typing the beginning of the title in the title field, selecting the title from the auto-complete list, and changing the text in the text field.</p>
-    <form action='index.php' method='post'>
-	<div class='suggestions-container'><input name='title' type='text' placeholder='Article title...' value='" . sanitize($title) . "' autocomplete='off'></div>
-        <br />
-        <textarea name='body' placeholder='Article body...'>" . sanitize($body) . "</textarea>
-        <br />
-        <button type='submit' class='submit-button'>Submit</button>
-        <br />
+    return "
+    <div class='form-container'>
+        <h2>Create/Edit Article</h2>
+        <p>Create a new article by filling out the fields below. Edit an article by typing the beginning of the title in the title field, selecting the title from the auto-complete list, and changing the text in the text field.</p>
+        
+        <form action='index.php' method='post' class='styled-form'>
+            <div class='suggestions-container'>
+                <input name='title' type='text' class='form-control' placeholder='Article title...' value='" . sanitize($title) . "' autocomplete='off'>
+            </div>
+            <br />
+            <textarea name='body' class='form-control text_class' rows='4' placeholder='Article body...'>" . sanitize($body) . "</textarea>
+            <br />
+            <button type='submit' class='btn btn-primary submit-button'>Submit</button>
+        </form>
+    </div>
+    
+    <div class='preview-section'>
         <h2>Preview</h2>
-        <div>" . sanitize($title) . "</div>
-        <div>" . sanitize($body) . "</div>
+        <div class='preview-title'>" . sanitize($title) . "</div>
+        <div class='preview-body'>" . sanitize($body) . "</div>
+    </div>
+    
+    <div class='articles-section'>
         <h2>Articles</h2>
-        <ul>" . getArticlesList() . "</ul>
-    </form>";
+        <ul class='articles-list'>" . getArticlesList() . "</ul>
+    </div>";
 }
 /**
  * Generate a list of available articles dynamically
