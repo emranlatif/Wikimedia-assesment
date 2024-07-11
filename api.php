@@ -15,18 +15,48 @@ $app = new App();
 // TODO E: Document this code to make it more understandable
 // for other developers.
 
-header( 'Content-Type: application/json' );
-if ( !isset( $_GET['title'] ) && !isset( $_GET['prefixsearch'] ) ) {
-	echo json_encode( [ 'content' => $app->getListOfArticles() ] );
-} elseif ( isset( $_GET['prefixsearch'] ) ) {
-	$list = $app->getListOfArticles();
-	$ma = [];
-	foreach ( $list as $ar ) {
-		if ( strpos( strtolower( $ar ), strtolower( $_GET['prefixsearch'] ) ) === 0 ) {
-			$ma[] = $ar;
-		}
-	}
-	echo json_encode( [ 'content' => $ma ] );
-} else {
-	echo json_encode( [ 'content' => $app->fetch( $_GET ) ] );
+header('Content-Type: application/json');
+
+// Route and handle requests
+handleRequest($app);
+
+function handleRequest(App $app) {
+    if (isListRequest()) {
+        handleListRequest($app);
+    } elseif (isPrefixSearchRequest()) {
+        handlePrefixSearchRequest($app);
+    } else {
+        handleArticleRequest($app);
+    }
+}
+
+function isListRequest(): bool {
+    return !isset($_GET['title']) && !isset($_GET['prefixsearch']);
+}
+
+function isPrefixSearchRequest(): bool {
+    return isset($_GET['prefixsearch']);
+}
+
+function handleListRequest(App $app) {
+    echo json_encode(['content' => $app->getListOfArticles()]);
+}
+
+function handlePrefixSearchRequest(App $app) {
+    $filteredArticles = filterArticlesByPrefix($app->getListOfArticles(), $_GET['prefixsearch']);
+    echo json_encode(['content' => $filteredArticles]);
+}
+
+function handleArticleRequest(App $app) {
+    echo json_encode(['content' => $app->fetch($_GET)]);
+}
+
+function filterArticlesByPrefix(array $articles, string $prefix): array {
+    $filteredArticles = [];
+    foreach ($articles as $article) {
+        if (stripos($article, $prefix) === 0) {
+            $filteredArticles[] = $article;
+        }
+    }
+    return $filteredArticles;
 }

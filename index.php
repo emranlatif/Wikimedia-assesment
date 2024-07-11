@@ -10,15 +10,14 @@
 // could you optimize this to perform well with large amounts of data? Code
 // comments / psuedo-code welcome.
 // TODO F (optional): Implement a unit test that operates on part of App.php
-
 // Import App class from App namespace
 use App\App;
+
 // Include the Composer autoload to manage dependencies
 require_once __DIR__ . '/vendor/autoload.php';
 
 // Initialize the application
 $app = new App();
-
 /**
  * Sanitize input data to prevent XSS attacks
  *
@@ -28,7 +27,6 @@ $app = new App();
 function sanitize($data) {
     return htmlspecialchars($data, ENT_QUOTES, 'UTF-8');
 }
-
 /**
  * Generate the header HTML with word count
  *
@@ -40,7 +38,6 @@ function getHeaderHTML($wordCount) {
         <a href='/'>Article Editor</a><div>$wordCount</div>
     </div>";
 }
-
 /**
  * Generate the form HTML for creating/editing an article
  *
@@ -65,7 +62,6 @@ function getFormHTML($title, $body) {
         <ul>" . getArticlesList() . "</ul>
     </form>";
 }
-
 /**
  * Generate a list of available articles dynamically
  *
@@ -83,7 +79,6 @@ function getArticlesList() {
     }
     return $articlesList;
 }
-
 /**
  * Calculate and return the total word count of all articles
  *
@@ -108,7 +103,6 @@ function wfGetWc() {
 // Initialize variables for title and body
 $title = '';
 $body = '';
-
 // Check if 'title' is set in query parameters and sanitize the input
 if (isset($_GET['title'])) {
     $title = sanitize($_GET['title']);
@@ -119,17 +113,14 @@ if (isset($_GET['title'])) {
         $body = $app->fetch($_GET); // Assuming fetch is a secure method
     }
 }
-
 // Process the form submission
 if ($_POST) {
     $title = sanitize($_POST['title']);
     $body = sanitize($_POST['body']);
     $app->save(sprintf("articles/%s", $title), $body);
 }
-
 // Calculate the total word count
 $wordCount = wfGetWc();
-
 // Output the HTML structure
 echo "<!DOCTYPE html>
 <html lang='en'>
@@ -150,5 +141,4 @@ echo "</div>";
 echo "</div>";
 echo "</body>
 </html>";
-
 ?>
