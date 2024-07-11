@@ -4,6 +4,7 @@ spec file at `design-spec/layout.png`. Don't worry about making it pixel perfect
 or matching the colors/spacing exactly. Instead, focus on the alignment of
 elements. Elements that appear to be horizontally or vertically centered in the
 spec, should be made that way here.
+
 * TODO B: Ensure that the page is responsive for tablet and mobile.
 */
 
@@ -15,4 +16,15 @@ spec, should be made that way here.
 
 .header a {
 	float: left;
+}
+.suggestions-container{
+	position: relative;
+	width: 100%;
+}
+.suggestions-list {
+	position : 'absolute';
+	top : "20px";
+	z-index: 10;
+	width : '100%';
+	background-color : '#4f77c9';
 }

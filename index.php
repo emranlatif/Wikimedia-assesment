@@ -49,7 +49,7 @@ function getFormHTML($title, $body) {
     return "<h2>Create/Edit Article</h2>
     <p>Create a new article by filling out the fields below. Edit an article by typing the beginning of the title in the title field, selecting the title from the auto-complete list, and changing the text in the text field.</p>
     <form action='index.php' method='post'>
-        <input name='title' type='text' placeholder='Article title...' value='" . sanitize($title) . "'>
+	<div class='suggestions-container'><input name='title' type='text' placeholder='Article title...' value='" . sanitize($title) . "' autocomplete='off'></div>
         <br />
         <textarea name='body' placeholder='Article body...'>" . sanitize($body) . "</textarea>
         <br />
@@ -131,7 +131,7 @@ echo "<!DOCTYPE html>
     <title>Article Editor</title>
     <link rel='stylesheet' href='http://design.wikimedia.org/style-guide/css/build/wmui-style-guide.min.css'>
     <link rel='stylesheet' href='styles.css'>
-    <script src='main.js' defer></script>
+    <script src='main.js'></script>
 </head>
 <body>";
 echo getHeaderHTML($wordCount);

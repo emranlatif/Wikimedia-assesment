@@ -33,17 +33,136 @@
 	// to the user when API requests fail and provide a graceful degradation of
 	// functionality.
 
-	function getFormButtonToWork() {
-		const submitButton = document.querySelector( '.submit-button' );
-		const form = document.querySelector( 'form' );
+// 	function getFormButtonToWork() {
+// 		const submitButton = document.querySelector( '.submit-button' );
+// 		const form = document.querySelector( 'form' );
 
-		// Make form submit button work when submit is clicked.
-		submitButton.addEventListener( 'click', (e) => {
-			e.preventDefault();
-			form.submit();
-		} );
+// 		// Make form submit button work when submit is clicked.
+// 		submitButton.addEventListener( 'click', (e) => {
+// 			e.preventDefault();
+// 			form.submit();
+// 		} );
+// 	}
+
+// 	// Waiting for page to load which takes about 1.5 seconds on my machine.
+// 	setTimeout( getFormButtonToWork, 1500);
+// }() )
+function getFormButtonToWork() {
+	const submitButton = document.querySelector( '.submit-button' );
+	const form = document.querySelector( 'form' );
+
+	// Make form submit button work when submit is clicked.
+	submitButton.addEventListener( 'click', (e) => {
+		e.preventDefault();
+		form.submit();
+	} );
+}
+
+// Debounce function to limit the rate of API calls
+function debounce(func, wait) {
+	let timeout;
+	return function (...args) {
+		clearTimeout(timeout);
+		timeout = setTimeout(() => func.apply(this, args), wait);
+	};
+}
+
+// Fetch auto-complete suggestions
+async function fetchSuggestions(query) {
+	try {
+		const response = await fetch(`api.php?prefixsearch=${query}`);
+		const data = await response.json();
+		return data.content;
+	} catch (error) {
+		console.error('Error fetching suggestions:', error);
+		return [];
 	}
+}
 
-	// Waiting for page to load which takes about 1.5 seconds on my machine.
-	setTimeout( getFormButtonToWork, 1500);
-}() )
+// Fetch article content
+async function fetchArticleContent(title) {
+	try {
+		const response = await fetch(`api.php?title=${title}`);
+		const data = await response.json();
+		return data.content;
+	} catch (error) {
+		console.error('Error fetching article content:', error);
+		return '';
+	}
+}
+
+// Handle input event for auto-complete
+async function handleInputEvent(event) {
+	const query = event.target.value;
+	if (query.length > 0) {
+		const suggestions = await fetchSuggestions(query);
+		displaySuggestions(suggestions, event.target);
+	} else {
+		clearSuggestions();
+	}
+}
+
+// Display suggestions
+function displaySuggestions(suggestions, inputElement) {
+	clearSuggestions();
+	const suggestionsList = document.createElement('ul');
+	const inputRect = inputElement.getBoundingClientRect();
+	suggestionsList.style.position = 'absolute';
+	suggestionsList.style.top = `${inputElement.offsetHeight}px`; 
+	suggestionsList.style.width = `${inputRect.width}px`;
+	suggestionsList.style.zIndex = 10;
+	suggestionsList.style.padding = 0;
+	suggestionsList.style.listStyle = 'none';
+	// suggestionsList.style.width = '100%';
+	suggestionsList.style.backgroundColor = '#4f77c9';
+	suggestionsList.classList.add('suggestions-list');
+	suggestions.forEach(suggestion => {
+		const listItem = document.createElement('li');
+		listItem.textContent = suggestion;
+        listItem.style.cursor = 'pointer';
+		listItem.style.paddingBottom = '5px';
+		listItem.style.paddingTop = '5px';
+		listItem.style.borderBottom = '1px solid';
+		listItem.addEventListener('click', () => handleSuggestionClick(suggestion, inputElement));
+		suggestionsList.appendChild(listItem);
+	});
+	// Append suggestionsList after the input element
+	inputElement.parentNode.insertBefore(suggestionsList, inputElement.nextSibling);
+}
+
+// Clear suggestions
+function clearSuggestions() {
+	const existingSuggestions = document.querySelector('.suggestions-list');
+	if (existingSuggestions) {
+		existingSuggestions.remove();
+	}
+}
+
+// Handle suggestion click
+async function handleSuggestionClick(suggestion, inputElement) {
+	inputElement.value = suggestion;
+	clearSuggestions();
+	const articleContent = await fetchArticleContent(suggestion);
+	document.querySelector('textarea[name="body"]').value = articleContent;
+}
+
+// Attach event listeners
+function attachEventListeners() {
+	const titleInput = document.querySelector('input[name="title"]');
+	titleInput.addEventListener('input', debounce(handleInputEvent, 200));
+	titleInput.addEventListener('focus', () => {
+		if (titleInput.value.length > 0) {
+			handleInputEvent({ target: titleInput });
+		}
+	});
+	titleInput.addEventListener('blur', () => {
+		setTimeout(clearSuggestions, 100); // Delay to allow click event on suggestion to trigger
+	});
+}
+
+// Wait for DOM content to load
+document.addEventListener('DOMContentLoaded', () => {
+	attachEventListeners();
+});
+
+})();
